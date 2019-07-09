@@ -27,7 +27,7 @@ export default class ShareSearch {
 	constructor() {
 		// init empty state
 		this.#state = {}
-		
+
 		// init default values
 		this.#state.results = []
 		console.debug('OCA.Sharing.ShareSearch initialized')
@@ -48,14 +48,15 @@ export default class ShareSearch {
 	 * Register a new result
 	 * Mostly used by the guests app.
 	 * We should consider deprecation and add results via php ?
-	 * 
-	 * @param {Object} result
+	 *
+	 * @param {Object} result entry to append
 	 * @param {string} [result.user] entry user
 	 * @param {string} result.displayName entry first line
-	 * @param {string} [result.desc] entry second line 
+	 * @param {string} [result.desc] entry second line
 	 * @param {string} [result.icon] entry icon
 	 * @param {function} result.handler function to run on entry selection
 	 * @param {function} [result.condition] condition to add entry or not
+	 * @returns {boolean}
 	 */
 	addNewResult(result) {
 		if (result.displayName.trim() !== ''
@@ -63,7 +64,8 @@ export default class ShareSearch {
 			this.#state.results.push(result)
 			return true
 		}
-		console.error(`Invalid search result provided`, result);
+		console.error(`Invalid search result provided`, result)
 		return false
 	}
+
 }

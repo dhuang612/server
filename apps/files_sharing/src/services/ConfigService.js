@@ -20,11 +20,11 @@
  *
  */
 
-
 export default class Config {
+
 	/**
 	 * Is public upload allowed on link shares ?
-	 * 
+	 *
 	 * @returns {boolean}
 	 * @readonly
 	 * @memberof Config
@@ -42,7 +42,7 @@ export default class Config {
 	 * @memberof Config
 	 */
 	get isShareWithLinkAllowed() {
-		return  document.getElementById('allowShareWithLink')
+		return document.getElementById('allowShareWithLink')
 			&& document.getElementById('allowShareWithLink').value === 'yes'
 	}
 
@@ -74,7 +74,7 @@ export default class Config {
 		}
 		return expireDateString
 	}
-	
+
 	/**
 	 * Are link shares password-enforced ?
 	 *
@@ -85,7 +85,7 @@ export default class Config {
 	get enforcePasswordForPublicLink() {
 		return OC.appConfig.core.enforcePasswordForPublicLink === true
 	}
-	
+
 	/**
 	 * Is password asked by default on link shares ?
 	 *
@@ -96,7 +96,7 @@ export default class Config {
 	get enableLinkPasswordByDefault() {
 		return OC.appConfig.core.enableLinkPasswordByDefault === true
 	}
-	
+
 	/**
 	 * Is link shares expiration enforced ?
 	 *
@@ -107,7 +107,7 @@ export default class Config {
 	get isDefaultExpireDateEnforced() {
 		return OC.appConfig.core.defaultExpireDateEnforced === true
 	}
-	
+
 	/**
 	 * Is there a default expiration date for new link shares ?
 	 *
@@ -118,7 +118,7 @@ export default class Config {
 	get isDefaultExpireDateEnabled() {
 		return OC.appConfig.core.defaultExpireDateEnabled === true
 	}
-	
+
 	/**
 	 * Are users on this server allowed to send shares to other servers ?
 	 *
@@ -129,7 +129,7 @@ export default class Config {
 	get isRemoteShareAllowed() {
 		return OC.appConfig.core.remoteShareAllowed === true
 	}
-	
+
 	/**
 	 * Is sharing my mail (link share) enabled ?
 	 *
@@ -140,7 +140,7 @@ export default class Config {
 	get isMailShareAllowed() {
 		return OC.appConfig.shareByMailEnabled !== undefined
 	}
-	
+
 	/**
 	 * Get the default days to expiration
 	 *
@@ -151,7 +151,7 @@ export default class Config {
 	get defaultExpireDate() {
 		return OC.appConfig.core.defaultExpireDate
 	}
-	
+
 	/**
 	 * Is resharing allowed ?
 	 *
@@ -162,7 +162,7 @@ export default class Config {
 	get isResharingAllowed() {
 		return OC.appConfig.core.resharingAllowed === true
 	}
-	
+
 	/**
 	 * Is password enforced for mail shares ?
 	 *
@@ -173,7 +173,7 @@ export default class Config {
 	get isPasswordForMailSharesRequired() {
 		return (OC.appConfig.shareByMail === undefined) ? false : OC.appConfig.shareByMail.enforcePasswordProtection === true
 	}
-	
+
 	/**
 	 * Is sharing with groups allowed ?
 	 *
@@ -219,4 +219,5 @@ export default class Config {
 		const capabilities = OC.getCapabilities()
 		return capabilities.password_policy ? capabilities.password_policy : {}
 	}
+
 }

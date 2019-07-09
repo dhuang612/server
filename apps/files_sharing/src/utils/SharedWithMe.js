@@ -23,7 +23,7 @@
 /**
  * Get the shared with me title
  *
- * @param {Share} share
+ * @param {Share} share current share
  * @returns {string} the title
  */
 const shareWithTitle = function(share) {
@@ -36,8 +36,8 @@ const shareWithTitle = function(share) {
 				owner: share.ownerDisplayName
 			},
 			undefined,
-			{escape: false}
-		);
+			{ escape: false }
+		)
 	} else if (share.type === OC.Share.type_CIRCLE) {
 		return t(
 			'files_sharing',
@@ -47,8 +47,8 @@ const shareWithTitle = function(share) {
 				owner: share.ownerDisplayName
 			},
 			undefined,
-			{escape: false}
-		);
+			{ escape: false }
+		)
 	} else if (share.type === OC.Share.type_ROOM) {
 		if (this.model.get('reshare').share_with_displayname) {
 			return t(
@@ -59,8 +59,8 @@ const shareWithTitle = function(share) {
 					owner: share.ownerDisplayName
 				},
 				undefined,
-				{escape: false}
-			);
+				{ escape: false }
+			)
 		} else {
 			return t(
 				'files_sharing',
@@ -69,8 +69,8 @@ const shareWithTitle = function(share) {
 					owner: share.ownerDisplayName
 				},
 				undefined,
-				{escape: false}
-			);
+				{ escape: false }
+			)
 		}
 	} else {
 		return t(
@@ -78,8 +78,8 @@ const shareWithTitle = function(share) {
 			'Shared with you by {owner}',
 			{ owner: share.ownerDisplayName },
 			undefined,
-			{escape: false}
-		);
+			{ escape: false }
+		)
 	}
 }
 

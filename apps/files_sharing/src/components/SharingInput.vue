@@ -21,22 +21,32 @@
   -->
 
 <template>
-	<Multiselect ref="multiselect" class="sharing-input"
-		:searchable="true" :loading="loading"
+	<Multiselect ref="multiselect"
+		class="sharing-input"
+		:searchable="true"
+		:loading="loading"
 		:internal-search="false"
-		:options="options"  :placeholder="inputPlaceholder"
-		:user-select="true" :hide-selected="true"
-		:preserve-search="true" :preselect-first="true"
-		@search-change="asyncFind" @select="addShare">
-		<template #noOptions>{{ t('files_sharing', 'No recommendations. Start typing.') }}</template>
-		<template #noResult>{{ noResultText }}</template>
+		:options="options"
+		:placeholder="inputPlaceholder"
+		:user-select="true"
+		:hide-selected="true"
+		:preserve-search="true"
+		:preselect-first="true"
+		@search-change="asyncFind"
+		@select="addShare">
+		<template #noOptions>
+			{{ t('files_sharing', 'No recommendations. Start typing.') }}
+		</template>
+		<template #noResult>
+			{{ noResultText }}
+		</template>
 	</Multiselect>
 </template>
 
 <script>
-import { generateOcsUrl } from 'nextcloud-router'
-import { getCurrentUser } from 'nextcloud-auth'
-import axios from 'nextcloud-axios'
+import { generateOcsUrl } from '@nextcloud/router'
+import { getCurrentUser } from '@nextcloud/auth'
+import axios from '@nextcloud/axios'
 import debounce from 'debounce'
 import Multiselect from 'nextcloud-vue/dist/Components/Multiselect'
 
@@ -46,7 +56,7 @@ import ShareRequests from '../mixins/ShareRequests'
 import ShareTypes from '../mixins/ShareTypes'
 
 export default {
-	name:  'SharingInput',
+	name: 'SharingInput',
 
 	components: {
 		Multiselect
@@ -93,25 +103,27 @@ export default {
 		 * allows external appas to inject new
 		 * results into the autocomplete dropdown
 		 * Used for the guests app
+		 *
+		 * @returns {Array}
 		 */
 		externalResults() {
 			return this.ShareSearch.results
 		},
 		inputPlaceholder() {
-			const allowRemoteSharing = this.config.isRemoteShareAllowed;
-			const allowMailSharing = this.config.isMailShareAllowed;
+			const allowRemoteSharing = this.config.isRemoteShareAllowed
+			const allowMailSharing = this.config.isMailShareAllowed
 
 			if (!allowRemoteSharing && allowMailSharing) {
-				return t('files_sharing', 'Name or email address...');
+				return t('files_sharing', 'Name or email address...')
 			}
 			if (allowRemoteSharing && !allowMailSharing) {
-				return t('files_sharing', 'Name or federated cloud ID...');
+				return t('files_sharing', 'Name or federated cloud ID...')
 			}
 			if (allowRemoteSharing && allowMailSharing) {
-				return t('files_sharing', 'Name, federated cloud ID or email address...');
+				return t('files_sharing', 'Name, federated cloud ID or email address...')
 			}
 
-			return 	t('files_sharing', 'Name...');
+			return 	t('files_sharing', 'Name...')
 		},
 
 		isValidQuery() {
@@ -152,14 +164,14 @@ export default {
 
 		/**
 		 * Get suggestions
-		 * 
+		 *
 		 * @param {string} search the search query
 		 * @param {boolean} [lookup=false] search on lookup server
 		 */
 		async getSuggestions(search, lookup) {
 			this.loading = true
 			lookup = lookup || false
-			console.info(search, lookup);	
+			console.info(search, lookup)
 
 			const request = await axios.get(generateOcsUrl('apps/files_sharing/api/v1') + 'sharees', {
 				params: {
@@ -172,10 +184,10 @@ export default {
 			})
 
 			if (request.data.ocs.meta.statuscode !== 100) {
-				console.error('Error fetching suggestions', request);
+				console.error('Error fetching suggestions', request)
 				return
 			}
-			
+
 			const data = request.data.ocs.data
 			const exact = request.data.ocs.data.exact
 			data.exact = [] // removing exact from general results
@@ -183,7 +195,7 @@ export default {
 			// flatten array of arrays
 			const rawExactSuggestions = Object.values(exact).reduce((arr, elem) => arr.concat(elem), [])
 			const rawSuggestions = Object.values(data).reduce((arr, elem) => arr.concat(elem), [])
-	
+
 			// remove invalid data and format to user-select layout
 			const exactSuggestions = this.filterOutExistingShares(rawExactSuggestions)
 				.map(share => this.formatForMultiselect(share))
@@ -201,7 +213,7 @@ export default {
 			}
 
 			// if there is a condition specified, filter it
-			const externalResults = this.externalResults.filter(result => !result.condition || result.condition(this) )
+			const externalResults = this.externalResults.filter(result => !result.condition || result.condition(this))
 
 			this.suggestions = exactSuggestions.concat(suggestions).concat(externalResults).concat(lookupEntry)
 
@@ -211,7 +223,7 @@ export default {
 
 		/**
 		 * Debounce getSuggestions
-		 * 
+		 *
 		 * @param {...*} args the arguments
 		 */
 		debounceGetSuggestions: debounce(function(...args) {
@@ -232,7 +244,7 @@ export default {
 			})
 
 			if (request.data.ocs.meta.statuscode !== 100) {
-				console.error('Error fetching recommendations', request);
+				console.error('Error fetching recommendations', request)
 				return
 			}
 
@@ -240,7 +252,7 @@ export default {
 
 			// flatten array of arrays
 			const rawRecommendations = Object.values(exact).reduce((arr, elem) => arr.concat(elem), [])
-			
+
 			// remove invalid data and format to user-select layout
 			this.recommendations = this.filterOutExistingShares(rawRecommendations)
 				.map(share => this.formatForMultiselect(share))
@@ -252,8 +264,9 @@ export default {
 		/**
 		 * Filter out existing shares from
 		 * the provided shares search results
-		 * 
+		 *
 		 * @param {Object[]} shares the array of shares object
+		 * @returns {Object[]}
 		 */
 		filterOutExistingShares(shares) {
 			return shares.reduce((arr, share) => {
@@ -278,16 +291,12 @@ export default {
 						if (emails.indexOf(share.value.shareWith.trim()) !== -1) {
 							return arr
 						}
-					}
-
-					// filter out existing shares
-					else {
+					} else { // filter out existing shares
 						// creating an object of uid => type
 						const sharesObj = this.shares.reduce((obj, elem) => {
 							obj[elem.shareWith] = elem.type
 							return obj
 						}, {})
-
 
 						// if shareWith is the same and the share type too, ignore it
 						const key = share.value.shareWith.trim()
@@ -300,10 +309,10 @@ export default {
 					// ALL GOOD
 					// let's add the suggestion
 					arr.push(share)
-				} finally {
-					// Always return the current array
+				} catch {
 					return arr
 				}
+				return arr
 			}, [])
 		},
 
@@ -314,43 +323,37 @@ export default {
 		 */
 		shareTypeToIcon(type) {
 			switch (type) {
-				case this.SHARE_TYPES.SHARE_TYPE_GUEST:
+			case this.SHARE_TYPES.SHARE_TYPE_GUEST:
 				// default is a user, other icons are here to differenciate
 				// themselves from it, so let's not display the user icon
 				// case this.SHARE_TYPES.SHARE_TYPE_REMOTE:
 				// case this.SHARE_TYPES.SHARE_TYPE_USER:
-					return 'icon-user'
-					break;
-				case this.SHARE_TYPES.SHARE_TYPE_REMOTE_GROUP:
-				case this.SHARE_TYPES.SHARE_TYPE_GROUP:
-					return 'icon-group'
-					break;
-				case this.SHARE_TYPES.SHARE_TYPE_EMAIL:
-					return 'icon-mail'
-					break;
-				case this.SHARE_TYPES.SHARE_TYPE_CIRCLE:
-					return 'icon-circle'
-					break;
-				case this.SHARE_TYPES.SHARE_TYPE_ROOM:
-					return 'icon-room'
-					break;
-			
-				default:
-					return ''
-					break;
+				return 'icon-user'
+			case this.SHARE_TYPES.SHARE_TYPE_REMOTE_GROUP:
+			case this.SHARE_TYPES.SHARE_TYPE_GROUP:
+				return 'icon-group'
+			case this.SHARE_TYPES.SHARE_TYPE_EMAIL:
+				return 'icon-mail'
+			case this.SHARE_TYPES.SHARE_TYPE_CIRCLE:
+				return 'icon-circle'
+			case this.SHARE_TYPES.SHARE_TYPE_ROOM:
+				return 'icon-room'
+
+			default:
+				return ''
 			}
 		},
 
-		/** 
+		/**
 		 * Format shares for the multiselect options
-		 * @param {Object} result
+		 * @param {Object} result select entry item
 		 * @returns {Object}
 		 */
 		formatForMultiselect(result) {
 			let desc
 			if ((result.value.shareType === this.SHARE_TYPES.SHARE_TYPE_REMOTE
 					|| result.value.shareType === this.SHARE_TYPES.SHARE_TYPE_REMOTE_GROUP
-				) && result.value.server) {
+			) && result.value.server) {
 				desc = t('files_sharing', 'on {server}', { server: result.value.server })
 			} else if (result.value.shareType === this.SHARE_TYPES.SHARE_TYPE_EMAIL) {
 				desc = result.value.shareWith
@@ -395,8 +398,8 @@ export default {
 
 				this.getRecommendations()
 
-			} catch(response) {
-				// focus back if any error 
+			} catch (response) {
+				// focus back if any error
 				const input = this.$refs.multiselect.$el.querySelector('input')
 				if (input) {
 					input.focus()
@@ -409,7 +412,7 @@ export default {
 	}
 }
 </script>
-  
+
 <style lang="scss">
 .sharing-input {
 	width: 100%;

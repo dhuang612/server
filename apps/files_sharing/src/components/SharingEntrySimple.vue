@@ -23,9 +23,11 @@
 <template>
 	<li class="sharing-entry">
 		<slot name="avatar" />
-		<div class="sharing-entry__desc" v-tooltip="tooltip">
+		<div v-tooltip="tooltip" class="sharing-entry__desc">
 			<h5>{{ title }}</h5>
-			<p v-if="subtitle">{{ subtitle }}</p>
+			<p v-if="subtitle">
+				{{ subtitle }}
+			</p>
 		</div>
 		<Actions v-if="$slots['default']" menu-align="right" class="sharing-entry__actions">
 			<slot />
@@ -34,7 +36,6 @@
 </template>
 
 <script>
-import Avatar from 'nextcloud-vue/dist/Components/Avatar'
 import Actions from 'nextcloud-vue/dist/Components/Actions'
 import Tooltip from 'nextcloud-vue/dist/Directives/Tooltip'
 
@@ -42,8 +43,7 @@ export default {
 	name: 'SharingEntrySimple',
 
 	components: {
-		Actions,
-		Avatar
+		Actions
 	},
 
 	directives: {

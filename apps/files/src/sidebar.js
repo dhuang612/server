@@ -42,8 +42,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		// Make sure we have a mountpoint
 		if (!document.getElementById('app-sidebar')) {
-			var contentElement = document.getElementById('content');
-			var sidebarElement = document.createElement('div');
+			var contentElement = document.getElementById('content')
+			var sidebarElement = document.createElement('div')
 			sidebarElement.id = 'app-sidebar'
 			contentElement.appendChild(sidebarElement)
 		}
@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	// Init vue app
 	OCA.Files.Sidebar.view = new Vue({
 		el: '#app-sidebar',
+		// eslint-disable-next-line vue/match-component-file-name
 		name: 'SidebarRoot',
 		render: h => h(SidebarView)
 	})

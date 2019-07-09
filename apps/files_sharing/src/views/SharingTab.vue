@@ -24,55 +24,63 @@
 	<Tab :icon="icon" :name="name" :class="{ 'icon-loading': loading }">
 		<!-- error message -->
 		<div v-if="error" class="emptycontent">
-			<div class="icon icon-error"></div>
+			<div class="icon icon-error" />
 			<h2>{{ error }}</h2>
 		</div>
-		
+
 		<!-- shares content -->
 		<template v-else>
 			<!-- shared with me information -->
 			<SharingEntrySimple v-if="isSharedWithMe" v-bind="sharedWithMe">
 				<template #avatar>
-					<Avatar #avatar :user="sharedWithMe.user" :display-name="sharedWithMe.displayName" class="sharing-entry__avatar" tooltipMessage="" />
+					<Avatar #avatar
+						:user="sharedWithMe.user"
+						:display-name="sharedWithMe.displayName"
+						class="sharing-entry__avatar"
+						tooltip-message="" />
 				</template>
 			</SharingEntrySimple>
 
 			<!-- add new share input -->
 			<SharingInput v-if="!loading"
-				:shares="shares" :link-shares="linkShares"
-				:file-info="fileInfo" :reshare="reshare"
+				:shares="shares"
+				:link-shares="linkShares"
+				:file-info="fileInfo"
+				:reshare="reshare"
 				@add:share="addShare" />
 
 			<!-- link shares list -->
 			<SharingLinkList v-if="!loading"
-				:shares="linkShares" :file-info="fileInfo" />
+				:shares="linkShares"
+				:file-info="fileInfo" />
 
 			<!-- other shares list -->
 			<SharingList v-if="!loading"
-				:shares="shares" :file-info="fileInfo" />
+				:shares="shares"
+				:file-info="fileInfo" />
 
 			<!-- internal link copy -->
 			<SharingEntryInternal :file-info="fileInfo" />
-			
-			<!-- projects -->
-			<collection-list v-if="fileInfo" type="file" :id="`${fileInfo.id}`" :name="fileInfo.name"></collection-list>
 		</template>
+
+		<!-- projects -->
+		<CollectionList v-if="fileInfo"
+			:id="`${fileInfo.id}`"
+			type="file"
+			:name="fileInfo.name" />
 	</Tab>
 </template>
 
 <script>
-import { generateOcsUrl } from 'nextcloud-router/dist/index'
+import { generateOcsUrl } from '@nextcloud/router'
 import Tab from 'nextcloud-vue/dist/Components/AppSidebarTab'
-import ActionButton from 'nextcloud-vue/dist/Components/ActionButton'
-import ActionCheckbox from 'nextcloud-vue/dist/Components/ActionCheckbox'
-import ActionLink from 'nextcloud-vue/dist/Components/ActionLink'
 import Avatar from 'nextcloud-vue/dist/Components/Avatar'
-import axios from 'nextcloud-axios'
+import axios from '@nextcloud/axios'
 import { CollectionList } from 'nextcloud-vue-collections'
 
 import { shareWithTitle } from '../utils/SharedWithMe'
 import Share from '../models/Share'
-import ShareTypes  from '../mixins/ShareTypes'
+import ShareTypes from '../mixins/ShareTypes'
 import SharingEntryInternal from '../components/SharingEntryInternal'
 import SharingEntrySimple from '../components/SharingEntrySimple'
 import SharingInput from '../components/SharingInput'
@@ -80,16 +88,10 @@ import SharingInput from '../components/SharingInput'
 import SharingLinkList from './SharingLinkList'
 import SharingList from './SharingList'
 
-
 export default {
 	name: 'SharingTab',
 
-	mixins: [ShareTypes],
-
 	components: {
-		ActionButton,
-		ActionCheckbox,
-		ActionLink,
 		Avatar,
 		CollectionList,
 		SharingEntryInternal,
@@ -99,6 +101,8 @@ export default {
 		SharingList,
 		Tab
 	},
+
+	mixins: [ShareTypes],
 
 	props: {
 		fileInfo: {
@@ -119,7 +123,8 @@ export default {
 			reshare: null,
 			sharedWithMe: {},
 			shares: [],
-			linkShares: []
+			linkShares: [],
+			sections: OCA.Sharing.ShareTabSections.getSections()
 		}
 	},
 
@@ -127,7 +132,7 @@ export default {
 		/**
 		 * Needed to differenciate the tabs
 		 * pulled from the AppSidebarTab component
-		 * 
+		 *
 		 * @returns {string}
 		 */
 		id() {
@@ -154,15 +159,15 @@ export default {
 		}
 	},
 
-	beforeMount() {
-		this.getShares()
-	},
-
 	watch: {
 		fileInfo() {
 			this.resetState()
 			this.getShares()
 		}
+	},
+
+	beforeMount() {
+		this.getShares()
 	},
 
 	methods: {
@@ -182,13 +187,15 @@ export default {
 				// fetch shares
 				const fetchShares = axios.get(shareUrl, {
 					params: {
-						format, path,
+						format,
+						path,
 						reshares: true
 					}
 				})
 				const fetchSharedWithMe = axios.get(shareUrl, {
 					params: {
-						format, path,
+						format,
+						path,
 						shared_with_me: true
 					}
 				})
@@ -206,7 +213,7 @@ export default {
 				console.error('Error loading the shares list', error)
 			}
 		},
-		
+
 		/**
 		 * Reset the current view to its default state
 		 */
@@ -221,7 +228,7 @@ export default {
 		/**
 		 * Update sharedWithMe.subtitle with the appropriate
 		 * expiration time left
-		 * 
+		 *
 		 * @param {Share} share the sharedWith Share object
 		 */
 		updateExpirationSubtitle(share) {
@@ -229,7 +236,7 @@ export default {
 			this.$set(this.sharedWithMe, 'subtitle', t('files_sharing', 'Expires {relativetime}', {
 				relativetime: OC.Util.relativeModifiedDate(expiration * 1000)
 			}))
-			
+
 			// share have expired
 			if (moment().unix() > expiration) {
 				clearInterval(this.expirationInterval)
@@ -251,7 +258,7 @@ export default {
 				const shares = data.ocs.data
 					.map(share => new Share(share))
 					.sort((a, b) => b.createdTime - a.createdTime)
-				
+
 				this.linkShares = shares.filter(share => share.type === this.SHARE_TYPES.SHARE_TYPE_LINK || share.type === this.SHARE_TYPES.SHARE_TYPE_EMAIL)
 				this.shares = shares.filter(share => share.type !== this.SHARE_TYPES.SHARE_TYPE_LINK && share.type !== this.SHARE_TYPES.SHARE_TYPE_EMAIL)
 			}
@@ -291,7 +298,7 @@ export default {
 
 		/**
 		 * Insert share at top of arrays
-		 * 
+		 *
 		 * @param {Share} share the share to insert
 		 */
 		addShare(share) {
@@ -307,4 +314,3 @@ export default {
 <style lang="scss" scoped>
 
 </style>
-

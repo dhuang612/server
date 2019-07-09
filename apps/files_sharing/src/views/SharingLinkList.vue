@@ -28,8 +28,10 @@
 		<!-- Else we display the list -->
 		<template v-if="hasShares">
 			<!-- using shares[index] to work with .sync -->
-			<SharingEntryLink v-for="(share, index) in shares" :key="share.id"
-				:share.sync="shares[index]" :file-info="fileInfo"
+			<SharingEntryLink v-for="(share, index) in shares"
+				:key="share.id"
+				:share.sync="shares[index]"
+				:file-info="fileInfo"
 				@add:share="addShare(...arguments)"
 				@update:share="awaitForShare(...arguments)"
 				@remove:share="removeShare" />
@@ -38,18 +40,19 @@
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import Share from '../models/Share'
-import ShareTypes  from '../mixins/ShareTypes'
+import ShareTypes from '../mixins/ShareTypes'
 import SharingEntryLink from '../components/SharingEntryLink'
 
 export default {
 	name: 'SharingLinkList',
 
-	mixins: [ShareTypes],
-
 	components: {
 		SharingEntryLink
 	},
+
+	mixins: [ShareTypes],
 
 	props: {
 		fileInfo: {
@@ -69,6 +72,8 @@ export default {
 		 * Do we have link shares?
 		 * Using this to still show the `new link share`
 		 * button regardless of mail shares
+		 *
+		 * @returns {Array}
 		 */
 		hasLinkShares() {
 			return this.shares.filter(share => share.type === this.SHARE_TYPES.SHARE_TYPE_LINK).length > 0
@@ -76,6 +81,8 @@ export default {
 
 		/**
 		 * Do we have any link or email shares?
+		 *
+		 * @returns {boolean}
 		 */
 		hasShares() {
 			return this.shares.length > 0
@@ -86,7 +93,7 @@ export default {
 		/**
 		 * Add a new share into the link shares list
 		 * and return the newly created share component
-		 * 
+		 *
 		 * @param {Share} share the share to add to the array
 		 * @param {Function} resolve a function to run after the share is added and its component initialized
 		 */
@@ -97,8 +104,11 @@ export default {
 
 		/**
 		 * Await for next tick and render after the list updated
-		 * Then resolve with the matched vue component of the 
+		 * Then resolve with the matched vue component of the
 		 * provided share object
+		 *
+		 * @param {Share} share newly created share
+		 * @param {Function} resolve a function to execute after
 		 */
 		awaitForShare(share, resolve) {
 			this.$nextTick(() => {
@@ -111,7 +121,7 @@ export default {
 
 		/**
 		 * Remove a share from the shares list
-		 * 
+		 *
 		 * @param {Share} share the share to remove
 		 */
 		removeShare(share) {

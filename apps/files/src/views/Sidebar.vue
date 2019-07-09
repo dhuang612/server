@@ -22,36 +22,41 @@
 
 <template>
 	<AppSidebar
-		ref="sidebar"
 		v-if="file"
+		ref="sidebar"
 		v-bind="appSidebar"
 		@close="onClose"
 		@update:starred="toggleStarred"
 		@[defaultActionListener].stop.prevent="onDefaultAction">
 		<!-- TODO: create a standard to allow multiple elements here? -->
-		<template #primary-actions v-if="fileInfo">
-			<LegacyView v-for="view in views" :key="view.cid"
-				:component="view" :file-info="fileInfo" />
+		<template v-if="fileInfo" #primary-actions>
+			<LegacyView v-for="view in views"
+				:key="view.cid"
+				:component="view"
+				:file-info="fileInfo" />
 		</template>
 
 		<!-- Error display -->
 		<div v-if="error" class="emptycontent">
-			<div class="icon-error"></div>
+			<div class="icon-error" />
 			<h2>{{ error }}</h2>
 		</div>
 
 		<!-- If fileInfo fetch is complete, display tabs -->
-		<template v-else-if="fileInfo" v-for="tab in tabs">
+		<template v-for="tab in tabs" v-else-if="fileInfo">
 			<component
+				:is="tabComponent(tab).is"
 				v-if="canDisplay(tab)"
-				v-bind="tabComponent(tab)"
-				:key="tab.id" :name="tab.name" :file-info="fileInfo" />
+				:key="tab.id"
+				:component="tabComponent(tab).component"
+				:name="tab.name"
+				:file-info="fileInfo" />
 		</template>
 	</AppSidebar>
 </template>
 <script>
 import $ from 'jquery'
-import axios from 'nextcloud-axios'
+import axios from '@nextcloud/axios'
 import AppSidebar from 'nextcloud-vue/dist/Components/AppSidebar'
 import FileInfo from '../services/FileInfo'
 import LegacyTab from '../components/LegacyTab'
@@ -75,35 +80,6 @@ export default {
 		}
 	},
 
-	watch: {
-		// update the sidebar data
-		async file(curr, prev) {
-			this.resetData()
-			if (curr && curr.trim() !== '') {
-				try {
-					this.fileInfo = await FileInfo(this.davPath)
-					// adding this as fallback because other apps expect it
-					this.fileInfo.dir = this.file.split('/').slice(0, -1).join('/')
-
-					// DEPRECATED legacy views
-					// TODO: remove
-					this.views.forEach(view => {
-						view.setFileInfo(this.fileInfo)
-					})
-
-					this.$nextTick(() => {
-						if (this.$refs.sidebar) {
-							this.$refs.sidebar.updateTabs()
-						}
-					})
-				} catch(error) {
-					this.error = t('files', 'Error while loading the file data')
-					console.error('Error while loading the file data');
-				}
-			}
-		}
-	},
-
 	computed: {
 		/**
 		 * Current filename
@@ -115,7 +91,7 @@ export default {
 			return this.Sidebar.file
 		},
 
-		/** 
+		/**
 		 * List of all the registered tabs
 		 * @returns {Array}
 		 */
@@ -123,7 +99,7 @@ export default {
 			return this.Sidebar.tabs
 		},
 
-		/** 
+		/**
 		 * List of all the registered views
 		 * @returns {Array}
 		 */
@@ -146,7 +122,7 @@ export default {
 		 * @returns {string} the current active tab
 		 */
 		activeTab: {
-			get: function () {
+			get: function() {
 				return this.Sidebar.activeTab
 			},
 			set: function(id) {
@@ -188,13 +164,15 @@ export default {
 
 		/**
 		 * App sidebar v-binding object
+		 *
+		 * @returns {Object}
 		 */
 		appSidebar() {
 			if (this.fileInfo) {
 				return {
 					background: this.background,
 					active: this.activeTab,
-					class: {'has-preview': this.fileInfo.hasPreview},
+					class: { 'has-preview': this.fileInfo.hasPreview },
 					compact: !this.fileInfo.hasPreview,
 					'star-loading': this.starLoading,
 					starred: this.fileInfo.isFavourited,
@@ -218,6 +196,8 @@ export default {
 
 		/**
 		 * Default action object for the current file
+		 *
+		 * @returns {Object}
 		 */
 		defaultAction() {
 			return this.fileInfo
@@ -231,15 +211,48 @@ export default {
 		 * Dynamic header click listener to ensure
 		 * nothing is listening for a click if there
 		 * is no default action
+		 *
+		 * @returns {string|null}
 		 */
 		defaultActionListener() {
 			return this.defaultAction ? 'figure-click' : null
 		}
 	},
 
+	watch: {
+		// update the sidebar data
+		async file(curr, prev) {
+			this.resetData()
+			if (curr && curr.trim() !== '') {
+				try {
+					this.fileInfo = await FileInfo(this.davPath)
+					// adding this as fallback because other apps expect it
+					this.fileInfo.dir = this.file.split('/').slice(0, -1).join('/')
+
+					// DEPRECATED legacy views
+					// TODO: remove
+					this.views.forEach(view => {
+						view.setFileInfo(this.fileInfo)
+					})
+
+					this.$nextTick(() => {
+						if (this.$refs.sidebar) {
+							this.$refs.sidebar.updateTabs()
+						}
+					})
+				} catch (error) {
+					this.error = t('files', 'Error while loading the file data')
+					console.error('Error while loading the file data')
+				}
+			}
+		}
+	},
+
 	methods: {
 		/**
 		 * Can this tab be displayed ?
+		 *
+		 * @param {Object} tab a registered tab
 		 * @returns {boolean}
 		 */
 		canDisplay(tab) {
@@ -284,7 +297,7 @@ export default {
 		/**
 		 * Toggle favourite state
 		 * TODO: better implementation
-		 * 
+		 *
 		 * @param {Boolean} state favourited or not
 		 */
 		async toggleStarred(state) {
@@ -302,7 +315,7 @@ export default {
 						${state ? '</d:set>' : '</d:remove>'}
 						</d:propertyupdate>`
 				})
-			} catch(error) {
+			} catch (error) {
 				OC.Notification.showTemporary(t('files', 'Unable to change the favourite state of the file'))
 				console.error('Unable to change favourite state', error)
 			}

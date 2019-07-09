@@ -22,7 +22,7 @@
 
 <template>
 	<li :class="{'sharing-entry--share': share}" class="sharing-entry">
-		<Avatar :isNoUser="true"
+		<Avatar :is-no-user="true"
 			:class="isEmailShareType ? 'icon-mail-white' : 'icon-public-white'"
 			class="sharing-entry__avatar" />
 		<div class="sharing-entry__desc">
@@ -30,21 +30,27 @@
 		</div>
 
 		<!-- clipboard -->
-		<Actions ref="copyButton" v-if="share && !isEmailShareType  && share.token"
+		<Actions v-if="share && !isEmailShareType && share.token"
+			ref="copyButton"
 			class="sharing-entry__copy">
-			<ActionLink :href="shareLink" target="_blank"
+			<ActionLink :href="shareLink"
+				target="_blank"
 				:icon="copied && copySuccess ? 'icon-checkmark-color' : 'icon-clippy'"
-				@click.stop.prevent="copyLink">{{ clipboardTooltip }}</ActionLink>
+				@click.stop.prevent="copyLink">
+				{{ clipboardTooltip }}
+			</ActionLink>
 		</Actions>
 
 		<!-- pending actions -->
 		<Actions v-if="!loading && (pendingPassword || pendingExpirationDate)"
-			class="sharing-entry__actions" menu-align="right"
-			:open.sync="open" @close="onNewLinkShare">
-
+			class="sharing-entry__actions"
+			menu-align="right"
+			:open.sync="open"
+			@close="onNewLinkShare">
 			<!-- pending data menu -->
 			<ActionText v-if="errors.pending"
-				icon="icon-error" :class="{ error: errors.pending}">
+				icon="icon-error"
+				:class="{ error: errors.pending}">
 				{{ errors.pending }}
 			</ActionText>
 			<ActionText v-else icon="icon-info">
@@ -62,17 +68,17 @@
 				{{ t('files_sharing', 'Password protection') }}
 			</ActionCheckbox>
 			<ActionInput v-if="pendingPassword || share.password"
-				:value.sync="share.password"
-				:disabled="saving"
-				:required="config.enableLinkPasswordByDefault || config.enforcePasswordForPublicLink"
-				:minlength="isPasswordPolicyEnabled && config.passwordPolicy.minLength"
-				icon=""
 				v-tooltip.auto="{
 					content: errors.password,
 					show: errors.password,
 					trigger: 'manual',
 					defaultContainer: '#app-sidebar'
 				}"
+				:value.sync="share.password"
+				:disabled="saving"
+				:required="config.enableLinkPasswordByDefault || config.enforcePasswordForPublicLink"
+				:minlength="isPasswordPolicyEnabled && config.passwordPolicy.minLength"
+				icon=""
 				autocomplete="new-password"
 				@submit="onNewLinkShare">
 				{{ t('files_sharing', 'Enter a password') }}
@@ -83,18 +89,18 @@
 				{{ t('files_sharing', 'Expiration date (enforced)') }}
 			</ActionText>
 			<ActionInput v-if="pendingExpirationDate"
-				:disabled="saving"
-				:first-day-of-week="firstDay"
-				:lang="lang"
 				v-model="share.expireDate"
-				icon=""
-				type="date"
 				v-tooltip.auto="{
 					content: errors.expireDate,
 					show: errors.expireDate,
 					trigger: 'manual',
 					defaultContainer: '#app-sidebar'
 				}"
+				:disabled="saving"
+				:first-day-of-week="firstDay"
+				:lang="lang"
+				icon=""
+				type="date"
 				:not-before="dateTomorrow"
 				:not-after="dateMaxEnforced">
 				<!-- let's not submit when picked, the user
@@ -108,13 +114,15 @@
 		</Actions>
 
 		<!-- actions -->
-		<Actions v-else-if="!loading" class="sharing-entry__actions"
-			menu-align="right" :open.sync="open"
+		<Actions v-else-if="!loading"
+			class="sharing-entry__actions"
+			menu-align="right"
+			:open.sync="open"
 			@close="onPasswordSubmit">
 			<template v-if="share">
 				<template v-if="isShareOwner">
 					<!-- folder -->
-					<template v-if="isFolder && fileHasCreatePermission && this.config.isPublicUploadEnabled">
+					<template v-if="isFolder && fileHasCreatePermission && config.isPublicUploadEnabled">
 						<ActionRadio :checked="share.permissions === publicUploadRValue"
 							:value="publicUploadRValue"
 							:name="randomId"
@@ -147,7 +155,7 @@
 						{{ t('files_sharing', 'Allow editing') }}
 					</ActionCheckbox>
 
-					<ActionCheckbox 
+					<ActionCheckbox
 						:checked.sync="share.hideDownload"
 						:disabled="saving"
 						@change="queueUpdate('hideDownload')">
@@ -158,24 +166,24 @@
 					<ActionCheckbox :checked.sync="isPasswordProtected"
 						:disabled="config.enforcePasswordForPublicLink || saving"
 						@uncheck="onPasswordDisable">
-						{{ config.enforcePasswordForPublicLink 
+						{{ config.enforcePasswordForPublicLink
 							? t('files_sharing', 'Password protection (enforced)')
 							: t('files_sharing', 'Password protect') }}
 					</ActionCheckbox>
 					<ActionInput v-if="isPasswordProtected"
-						:class="{ error: errors.password}"
-						:disabled="saving"
-						:required="config.enforcePasswordForPublicLink"
-						:value="hasUnsavedPassword ? share.newPassword : '***************'"
-						icon="icon-password"
 						ref="password"
-						autocomplete="new-password"
 						v-tooltip.auto="{
 							content: errors.password,
 							show: errors.password,
 							trigger: 'manual',
 							defaultContainer: '#app-sidebar'
 						}"
+						:class="{ error: errors.password}"
+						:disabled="saving"
+						:required="config.enforcePasswordForPublicLink"
+						:value="hasUnsavedPassword ? share.newPassword : '***************'"
+						icon="icon-password"
+						autocomplete="new-password"
 						:type="hasUnsavedPassword ? 'text': 'password'"
 						@update:value="onPasswordChange"
 						@submit="onPasswordSubmit">
@@ -186,31 +194,31 @@
 					<ActionCheckbox :checked.sync="hasExpirationDate"
 						:disabled="config.isDefaultExpireDateEnforced || saving"
 						@uncheck="onExpirationDisable">
-						{{ config.isDefaultExpireDateEnforced 
+						{{ config.isDefaultExpireDateEnforced
 							? t('files_sharing', 'Expiration date (enforced)')
 							: t('files_sharing', 'Set expiration date') }}
 					</ActionCheckbox>
 					<ActionInput v-if="hasExpirationDate"
-						:class="{ error: errors.expireDate}"
-						:disabled="saving"
-						:first-day-of-week="firstDay"
-						:lang="lang"
-						:value="share.expireDate"
-						icon="icon-calendar-dark"
 						ref="expireDate"
-						type="date"
 						v-tooltip.auto="{
 							content: errors.expireDate,
 							show: errors.expireDate,
 							trigger: 'manual',
 							defaultContainer: '#app-sidebar'
 						}"
+						:class="{ error: errors.expireDate}"
+						:disabled="saving"
+						:first-day-of-week="firstDay"
+						:lang="lang"
+						:value="share.expireDate"
+						icon="icon-calendar-dark"
+						type="date"
 						:not-before="dateTomorrow"
 						:not-after="dateMaxEnforced"
 						@update:value="onExpirationChange">
 						{{ t('files_sharing', 'Enter a date') }}
 					</ActionInput>
-					
+
 					<!-- note -->
 					<ActionCheckbox :checked.sync="hasNote"
 						:disabled="saving"
@@ -218,10 +226,6 @@
 						{{ t('files_sharing', 'Note to recipient') }}
 					</ActionCheckbox>
 					<ActionTextEditable v-if="hasNote"
-						:class="{ error: errors.note}"
-						:disabled="saving"
-						:value.sync="share.note"
-						icon="icon-edit"
 						ref="note"
 						v-tooltip.auto="{
 							content: errors.note,
@@ -229,35 +233,43 @@
 							trigger: 'manual',
 							defaultContainer: '#app-sidebar'
 						}"
+						:class="{ error: errors.note}"
+						:disabled="saving"
+						:value.sync="share.note"
+						icon="icon-edit"
 						@update:value="debounceQueueUpdate('note')" />
 				</template>
 
-				<components v-for="(action, index) in externalActions" :is="action" :key="index" />
+				<components :is="action" v-for="(action, index) in externalActions" :key="index" />
 
 				<ActionButton icon="icon-delete" :disabled="saving" @click.prevent="onDelete">
 					{{ t('files_sharing', 'Delete share') }}
 				</ActionButton>
 				<ActionButton v-if="!isEmailShareType"
-					class="new-share-link" icon="icon-add"
+					class="new-share-link"
+					icon="icon-add"
 					@click.prevent.stop="onNewLinkShare">
 					{{ t('files_sharing', 'Add another link') }}
 				</ActionButton>
 			</template>
 
 			<!-- Create new share -->
-			<ActionButton v-else class="new-share-link" icon="icon-add" @click.prevent.stop="onNewLinkShare">
+			<ActionButton v-else
+				class="new-share-link"
+				icon="icon-add"
+				@click.prevent.stop="onNewLinkShare">
 				{{ t('files_sharing', 'Create a new share link') }}
 			</ActionButton>
 		</Actions>
 
 		<!-- loading indicator to replace the menu -->
-		<div v-else class="icon-loading-small sharing-entry__loading"></div>
+		<div v-else class="icon-loading-small sharing-entry__loading" />
 	</li>
 </template>
 
 <script>
-import { generateUrl } from 'nextcloud-router/dist/index'
-import axios from 'nextcloud-axios'
+import { generateUrl } from '@nextcloud/router'
+import axios from '@nextcloud/axios'
 
 import ActionButton from 'nextcloud-vue/dist/Components/ActionButton'
 import ActionCheckbox from 'nextcloud-vue/dist/Components/ActionCheckbox'
@@ -290,11 +302,11 @@ export default {
 		Avatar
 	},
 
-	mixins: [SharesMixin],
-
 	directives: {
 		Tooltip
 	},
+
+	mixins: [SharesMixin],
 
 	data() {
 		return {
@@ -305,7 +317,7 @@ export default {
 			publicUploadRValue: OC.PERMISSION_READ,
 			publicUploadWValue: OC.PERMISSION_CREATE,
 
-			ExternalLinkActions: OCA.Sharing.ExternalLinkActions.state,
+			ExternalLinkActions: OCA.Sharing.ExternalLinkActions.state
 		}
 	},
 
@@ -314,6 +326,7 @@ export default {
 		 * Generate a unique random id for this SharingEntryLink only
 		 * This allows ActionRadios to have the same name prop
 		 * but not to impact others SharingEntryLink
+		 * @returns {string}
 		 */
 		randomId() {
 			return Math.random().toString(27).substr(2)
@@ -322,6 +335,7 @@ export default {
 		/**
 		 * Link share label
 		 * TODO: allow editing
+		 * @returns {string}
 		 */
 		title() {
 			// if we have a valid existing share (not pending)
@@ -340,7 +354,6 @@ export default {
 			}
 			return t('files_sharing', 'Share link')
 		},
-		
 
 		/**
 		 * Is the current share password protected ?
@@ -372,6 +385,7 @@ export default {
 		 * Pending data.
 		 * If the share still doesn't have an id, it is not synced
 		 * Therefore this is still not valid and requires user input
+		 * @returns {boolean}
 		 */
 		pendingPassword() {
 			return this.config.enforcePasswordForPublicLink && this.share && !this.share.id
@@ -415,11 +429,11 @@ export default {
 		 * TODO: move to a proper FileInfo model?
 		 * @returns {boolean}
 		 */
-		fileHasCreatePermission()  {
-			return this.fileInfo.permissions & OC.PERMISSION_CREATE ? true : false
+		fileHasCreatePermission() {
+			return !!(this.fileInfo.permissions & OC.PERMISSION_CREATE)
 		},
 
-		/** 
+		/**
 		 * Return the public share link
 		 * @returns {string}
 		 */
@@ -428,7 +442,7 @@ export default {
 		},
 
 		/**
-		 * Clipboard v-tooltip message 
+		 * Clipboard v-tooltip message
 		 * @returns {string}
 		 */
 		clipboardTooltip() {
@@ -442,6 +456,7 @@ export default {
 
 		/**
 		 * External aditionnal actions for the menu
+		 * @returns {Array}
 		 */
 		externalActions() {
 			return this.ExternalLinkActions.actions
@@ -501,7 +516,7 @@ export default {
 				this.open = false
 				this.loading = false
 				component.open = true
-			
+
 			// Nothing enforced, creating share directly
 			} else {
 				const share = new Share(shareDefaults)
@@ -513,7 +528,7 @@ export default {
 		 * Push a new link share to the server
 		 * And update or append to the list
 		 * accordingly
-		 * 
+		 *
 		 * @param {Share} share the new share
 		 * @param {boolean} [update=false] do we update the current share ?
 		 */
@@ -530,13 +545,13 @@ export default {
 					expireDate: share.expireDate
 					// we do not allow setting the publicUpload
 					// before the share creation.
-					// Todo: We also need to fix the createShare method in 
+					// Todo: We also need to fix the createShare method in
 					// lib/Controller/ShareAPIController.php to allow file drop
 					// (currently not supported on create, only update)
 				})
-				
+
 				this.open = false
-				
+
 				console.debug('Link share created', newShare)
 
 				// if share already exists, copy link directly on next tick
@@ -545,9 +560,8 @@ export default {
 					component = await new Promise(resolve => {
 						this.$emit('update:share', newShare, resolve)
 					})
-				}
-				// adding new share to the array and copying link to clipboard
-				else {
+				} else {
+					// adding new share to the array and copying link to clipboard
 					// using promise so that we can copy link in the same click function
 					// and avoid firefox copy permissions issue
 					component = await new Promise(resolve => {
@@ -560,12 +574,12 @@ export default {
 				// ! somehow does not works on firefox !
 				component.copyLink()
 
-			} catch({ response }) {
+			} catch ({ response }) {
 				const message = response.data.ocs.meta.message
 				if (message.match(/password/i)) {
 					this.onSyncError('password', message)
 				} else if (message.match(/date/i)) {
-					this.onSyncError('expireDate', message)	
+					this.onSyncError('expireDate', message)
 				} else {
 					this.onSyncError('pending', message)
 				}
@@ -576,6 +590,7 @@ export default {
 
 		/**
 		 * On permissions change
+		 * @param {Event} event js event
 		 */
 		togglePermissions(event) {
 			const permissions = parseInt(event.target.value, 10)
@@ -587,7 +602,7 @@ export default {
 		 * Generate a valid policy password or
 		 * request a valid password if password_policy
 		 * is enabled
-		 * 
+		 *
 		 * @returns {string} a valid password
 		 */
 		async generatePassword() {
@@ -598,18 +613,19 @@ export default {
 					if (request.data.ocs.data.password) {
 						return request.data.ocs.data.password
 					}
-				} catch(error) {
-					console.info('Error generating password from password_policy', error);
+				} catch (error) {
+					console.info('Error generating password from password_policy', error)
 				}
 			}
 
 			// generate password of 10 length based on passwordSet
 			return Array(10).fill(0)
 				.reduce((prev, curr) => {
-					return prev += passwordSet.charAt(Math.floor(Math.random() * passwordSet.length))
+					prev += passwordSet.charAt(Math.floor(Math.random() * passwordSet.length))
+					return prev
 				}, '')
 		},
-		
+
 		async copyLink() {
 			try {
 				await this.$copyText(this.shareLink)
@@ -620,7 +636,7 @@ export default {
 			} catch (error) {
 				this.copySuccess = false
 				this.copied = true
-				console.error(error);
+				console.error(error)
 			} finally {
 				setTimeout(() => {
 					this.copySuccess = false
@@ -636,6 +652,7 @@ export default {
 		 * If both co-exists, the password have changed and
 		 * we show it in plain text.
 		 * Then on submit (or menu close), we sync it.
+		 * @param {string} password the changed password
 		 */
 		onPasswordChange(password) {
 			this.$set(this.share, 'newPassword', password)
@@ -680,7 +697,7 @@ export default {
 		 * Used in the pending popover
 		 */
 		onCancel() {
-			//this.share already exists at this point,
+			// this.share already exists at this point,
 			// but is incomplete as not pushed to server
 			// YET. We can safely delete the share :)
 			this.$emit('remove:share', this.share)
@@ -689,7 +706,7 @@ export default {
 
 }
 </script>
-  
+
 <style lang="scss" scoped>
 .sharing-entry {
 	display: flex;

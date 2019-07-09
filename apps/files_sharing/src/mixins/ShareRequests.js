@@ -20,14 +20,14 @@
  *
  */
 
-import { generateOcsUrl } from 'nextcloud-router/dist/index'
-import axios from 'nextcloud-axios'
+import { generateOcsUrl } from '@nextcloud/router'
+import axios from '@nextcloud/axios'
 import Share from '../models/Share'
 
 const shareUrl = generateOcsUrl('apps/files_sharing/api/v1', 2) + 'shares'
 const headers = {
 	'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-};
+}
 
 export default {
 	methods: {
@@ -41,22 +41,22 @@ export default {
 		 * @param {boolean} [data.publicUpload=false]  allow public upload to a public shared folder
 		 * @param {string} [data.password]  password to protect public link Share with
 		 * @param {number} [data.permissions=31]  1 = read; 2 = update; 4 = create; 8 = delete; 16 = share; 31 = all (default: 31, for public shares: 1)
-		 * @param {boolean} [data.sendPasswordByTalk=false]
-		 * @param {string} [data.expireDate='']
-		 * @param {string} [data.label='']
+		 * @param {boolean} [data.sendPasswordByTalk=false] send the password via a talk conversation
+		 * @param {string} [data.expireDate=''] expire the shareautomatically after
+		 * @param {string} [data.label=''] custom label
 		 * @returns {Share} the new share
 		 * @throws {Error}
 		 */
 		async createShare({ path, permissions, shareType, shareWith, publicUpload, password, sendPasswordByTalk, expireDate, label }) {
 			try {
 				const request = await axios.post(shareUrl, { path, permissions, shareType, shareWith, publicUpload, password, sendPasswordByTalk, expireDate, label })
-				if (!'ocs' in request.data) {
+				if (!('ocs' in request.data)) {
 					throw request
 				}
 				return new Share(request.data.ocs.data)
 			} catch (error) {
-				console.error('Error while creating share', error);
-				OC.Notification.showTemporary(t('files_sharing', 'Error creating the share'), { type: 'error'})
+				console.error('Error while creating share', error)
+				OC.Notification.showTemporary(t('files_sharing', 'Error creating the share'), { type: 'error' })
 				throw error
 			}
 		},
@@ -64,19 +64,19 @@ export default {
 		/**
 		 * Delete a share
 		 *
-		 * @param {number} id 
+		 * @param {number} id share id
 		 * @throws {Error}
 		 */
 		async deleteShare(id) {
 			try {
 				const request = await axios.delete(shareUrl + `/${id}`)
-				if (!'ocs' in request.data) {
+				if (!('ocs' in request.data)) {
 					throw request
 				}
 				return true
 			} catch (error) {
-				console.error('Error while deleting share', error);
-				OC.Notification.showTemporary(t('files_sharing', 'Error deleting the share'), { type: 'error'})
+				console.error('Error while deleting share', error)
+				OC.Notification.showTemporary(t('files_sharing', 'Error deleting the share'), { type: 'error' })
 				throw error
 			}
 		},
@@ -84,27 +84,27 @@ export default {
 		/**
 		 * Update a share
 		 *
-		 * @param {number} id 
-		 * @param {Object} data 
-		 * @param {string} data.property
-		 * @param {any} data.value
+		 * @param {number} id share id
+		 * @param {Object} data destructuring object
+		 * @param {string} data.property property to update
+		 * @param {any} data.value value to set
 		 */
 		async updateShare(id, { property, value }) {
 			try {
 				// ocs api requires x-www-form-urlencoded
-				const data = new URLSearchParams();
-				data.append(property, value);
-				
+				const data = new URLSearchParams()
+				data.append(property, value)
+
 				const request = await axios.put(shareUrl + `/${id}`, { [property]: value }, headers)
-				if (!'ocs' in request.data) {
+				if (!('ocs' in request.data)) {
 					throw request
 				}
 				return true
 			} catch (error) {
-				console.error('Error while updating share', error);
-				OC.Notification.showTemporary(t('files_sharing', 'Error updating the share'), { type: 'error'})
+				console.error('Error while updating share', error)
+				OC.Notification.showTemporary(t('files_sharing', 'Error updating the share'), { type: 'error' })
 				const message = error.response.data.ocs.meta.message
-				throw { property, message }
+				throw new Error(`${property}, ${message}`)
 			}
 		}
 	}

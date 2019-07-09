@@ -56,8 +56,8 @@ export default {
 			return this.name.toLowerCase().replace(/ /g, '-')
 		},
 		order() {
-			return this.component.order ?
-				this.component.order
+			return this.component.order
+				? this.component.order
 				: 0
 		},
 		// needed because AppSidebarTab also uses $parent.activeTab

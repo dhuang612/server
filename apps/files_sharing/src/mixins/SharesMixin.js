@@ -27,7 +27,7 @@ import Share from '../models/Share'
 import SharesRequests from './ShareRequests'
 import ShareTypes from './ShareTypes'
 import Config from '../services/ConfigService'
-import { getCurrentUser } from 'nextcloud-auth';
+import { getCurrentUser } from '@nextcloud/auth'
 
 export default {
 	mixins: [SharesRequests, ShareTypes],
@@ -67,13 +67,13 @@ export default {
 			reactiveState: this.share && this.share.state,
 
 			SHARE_TYPES: {
-				SHARE_TYPE_USER: OC.Share.SHARE_TYPE_USER, 
-				SHARE_TYPE_GROUP: OC.Share.SHARE_TYPE_GROUP, 
-				SHARE_TYPE_LINK: OC.Share.SHARE_TYPE_LINK, 
-				SHARE_TYPE_EMAIL: OC.Share.SHARE_TYPE_EMAIL, 
-				SHARE_TYPE_REMOTE: OC.Share.SHARE_TYPE_REMOTE, 
-				SHARE_TYPE_CIRCLE: OC.Share.SHARE_TYPE_CIRCLE, 
-				SHARE_TYPE_GUEST: OC.Share.SHARE_TYPE_GUEST, 
+				SHARE_TYPE_USER: OC.Share.SHARE_TYPE_USER,
+				SHARE_TYPE_GROUP: OC.Share.SHARE_TYPE_GROUP,
+				SHARE_TYPE_LINK: OC.Share.SHARE_TYPE_LINK,
+				SHARE_TYPE_EMAIL: OC.Share.SHARE_TYPE_EMAIL,
+				SHARE_TYPE_REMOTE: OC.Share.SHARE_TYPE_REMOTE,
+				SHARE_TYPE_CIRCLE: OC.Share.SHARE_TYPE_CIRCLE,
+				SHARE_TYPE_GUEST: OC.Share.SHARE_TYPE_GUEST,
 				SHARE_TYPE_REMOTE_GROUP: OC.Share.SHARE_TYPE_REMOTE_GROUP,
 				SHARE_TYPE_ROOM: OC.Share.SHARE_TYPE_ROOM
 			}
@@ -114,7 +114,6 @@ export default {
 			}
 		},
 
-
 		dateTomorrow() {
 			return moment().add(1, 'days')
 		},
@@ -128,6 +127,8 @@ export default {
 		 * Datepicker lang values
 		 * https://github.com/nextcloud/nextcloud-vue/pull/146
 		 * TODO: have this in vue-components
+		 *
+		 * @returns {int}
 		 */
 		firstDay() {
 			return window.firstDay
@@ -165,7 +166,7 @@ export default {
 		 */
 		checkShare(share) {
 			if (share.password) {
-				if (typeof share.password !== 'string' || share.password.trim() === '')  {
+				if (typeof share.password !== 'string' || share.password.trim() === '') {
 					return false
 				}
 			}
@@ -182,6 +183,8 @@ export default {
 		 * ActionInput can be a little tricky to work with.
 		 * Since we expect a string and not a Date,
 		 * we need to process the value here
+		 *
+		 * @param {Date} date js date to be parsed by moment.js
 		 */
 		onExpirationChange(date) {
 			// format to YYYY-MM-DD
@@ -209,9 +212,9 @@ export default {
 				this.loading = true
 				this.open = false
 				await this.deleteShare(this.share.id)
-				console.debug('Share deleted', this.share.id);
+				console.debug('Share deleted', this.share.id)
 				this.$emit('remove:share', this.share)
-			} catch(error) {
+			} catch (error) {
 				// re-open menu if error
 				this.open = true
 			} finally {
@@ -227,7 +230,7 @@ export default {
 		queueUpdate(property) {
 			if (this.share.id) {
 				const value = this.share[property]
-				this.updateQueue.add(async () => {
+				this.updateQueue.add(async() => {
 					this.saving = true
 					this.errors = {}
 					try {
@@ -241,7 +244,7 @@ export default {
 
 						// reset password state after sync
 						this.$delete(this.share, 'newPassword')
-					} catch({ property, message }) {
+					} catch ({ property, message }) {
 						this.onSyncError(property, message)
 					} finally {
 						this.saving = false
@@ -261,36 +264,37 @@ export default {
 			// re-open menu if closed
 			this.open = true
 			switch (property) {
-				case 'password':
-				case 'pending':
-				case 'expireDate':
-				case 'note':
-					// show error
-					this.$set(this.errors, property, message)
+			case 'password':
+			case 'pending':
+			case 'expireDate':
+			case 'note': {
+				// show error
+				this.$set(this.errors, property, message)
 
-					let propertyEl = this.$refs[property]
-					if (propertyEl) {
-						if (propertyEl.$el) {
-							propertyEl = propertyEl.$el
-						}
-						// focus if there is a focusable action element
-						const focusable = propertyEl.querySelector('.focusable')
-						if (focusable) {
-							focusable.focus()
-						}
+				let propertyEl = this.$refs[property]
+				if (propertyEl) {
+					if (propertyEl.$el) {
+						propertyEl = propertyEl.$el
 					}
-					break;
+					// focus if there is a focusable action element
+					const focusable = propertyEl.querySelector('.focusable')
+					if (focusable) {
+						focusable.focus()
+					}
+				}
+				break
+			}
 			}
 		},
 
 		/**
 		 * Debounce queueUpdate to avoid requests spamming
 		 * more importantly for text data
-		 * 
+		 *
 		 * @param {string} property the property to sync
 		 */
 		debounceQueueUpdate: debounce(function(property) {
 			this.queueUpdate(property)
-		}, 500),
+		}, 500)
 	}
 }

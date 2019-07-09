@@ -1,7 +1,7 @@
 /**
- * @copyright Copyright (c) 2019 John Molakvoæ <skjnldsv@protonmail.com>
+ * @copyright Copyright (c) 2019 Julius Härtl <jus@bitgrid.net>
  *
- * @author John Molakvoæ <skjnldsv@protonmail.com>
+ * @author Julius Härtl <jus@bitgrid.net>
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -20,40 +20,30 @@
  *
  */
 
-export default class Tab {
+/**
+ * Callback for adding two numbers.
+ *
+ * @callback registerSectionCallback
+ * @param {Element} el The DOM element where the section is rendered
+ * @param {FileInfo} fileInfo current file FileInfo
+ */
+export default class TabSections {
 
-	#component;
-	#legacy;
-	#name;
+	#sections;
+
+	constructor() {
+		this.#sections = []
+	}
 
 	/**
-	 * Create a new tab instance
-	 *
-	 * @param {string} name the name of this tab
-	 * @param {Object} component the vue component
-	 * @param {boolean} [legacy] is this a legacy tab
+	 * @param {registerSectionCallback} section To be called to mount the section to the sharing sidebar
 	 */
-	constructor(name, component, legacy) {
-		this.#name = name
-		this.#component = component
-		this.#legacy = legacy === true
-
-		if (this.#legacy) {
-			console.warn('Legacy tabs are deprecated! They will be removed in nextcloud 20.')
-		}
-
+	registerSection(section) {
+		this.#sections.push(section)
 	}
 
-	get name() {
-		return this.#name
-	}
-
-	get component() {
-		return this.#component
-	}
-
-	get isLegacyTab() {
-		return this.#legacy === true
+	getSections() {
+		return this.#sections
 	}
 
 }

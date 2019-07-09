@@ -22,10 +22,11 @@
 
 <template>
 	<li class="sharing-entry">
-		<Avatar class="sharing-entry__avatar" :user="share.shareWith"
+		<Avatar class="sharing-entry__avatar"
+			:user="share.shareWith"
 			:display-name="share.shareWithDisplayName"
 			:url="share.shareWithAvatar" />
-		<div class="sharing-entry__desc" v-tooltip.auto="tooltip">
+		<div v-tooltip.auto="tooltip" class="sharing-entry__desc">
 			<h5>{{ title }}</h5>
 		</div>
 		<Actions menu-align="right" class="sharing-entry__actions">
@@ -46,35 +47,35 @@
 				:disabled="saving">
 				{{ t('files_sharing', 'Can reshare') }}
 			</ActionCheckbox>
-			
+
 			<!-- expiration date -->
 			<ActionCheckbox :checked.sync="hasExpirationDate"
 				:disabled="config.isDefaultExpireDateEnforced || saving"
 				@uncheck="onExpirationDisable">
-				{{ config.isDefaultExpireDateEnforced 
+				{{ config.isDefaultExpireDateEnforced
 					? t('files_sharing', 'Expiration date enforced')
 					: t('files_sharing', 'Set expiration date') }}
 			</ActionCheckbox>
 			<ActionInput v-if="hasExpirationDate"
+				ref="expireDate"
+				v-tooltip.auto="{
+					content: errors.expireDate,
+					show: errors.expireDate,
+					trigger: 'manual'
+				}"
 				:class="{ error: errors.expireDate}"
 				:disabled="saving"
 				:first-day-of-week="firstDay"
 				:lang="lang"
 				:value="share.expireDate"
 				icon="icon-calendar-dark"
-				ref="expireDate"
 				type="date"
-				v-tooltip.auto="{
-					content: errors.expireDate,
-					show: errors.expireDate,
-					trigger: 'manual'
-				}"
 				:not-before="dateTomorrow"
 				:not-after="dateMaxEnforced"
 				@update:value="onExpirationChange">
 				{{ t('files_sharing', 'Enter a date') }}
 			</ActionInput>
-			
+
 			<!-- note -->
 			<template v-if="canHaveNote">
 				<ActionCheckbox
@@ -84,19 +85,19 @@
 					{{ t('files_sharing', 'Note to recipient') }}
 				</ActionCheckbox>
 				<ActionTextEditable v-if="hasNote"
-					:class="{ error: errors.note}"
-					:disabled="saving"
-					:value.sync="share.note"
-					icon="icon-edit"
 					ref="note"
 					v-tooltip.auto="{
 						content: errors.note,
 						show: errors.note,
 						trigger: 'manual'
 					}"
+					:class="{ error: errors.note}"
+					:disabled="saving"
+					:value.sync="share.note"
+					icon="icon-edit"
 					@update:value="debounceQueueUpdate('note')" />
 			</template>
-		
+
 			<ActionButton icon="icon-delete" :disabled="saving" @click.prevent="onDelete">
 				{{ t('files_sharing', 'Unshare') }}
 			</ActionButton>
@@ -110,11 +111,10 @@ import Actions from 'nextcloud-vue/dist/Components/Actions'
 import ActionButton from 'nextcloud-vue/dist/Components/ActionButton'
 import ActionCheckbox from 'nextcloud-vue/dist/Components/ActionCheckbox'
 import ActionInput from 'nextcloud-vue/dist/Components/ActionInput'
-import ActionText from 'nextcloud-vue/dist/Components/ActionText'
 import ActionTextEditable from 'nextcloud-vue/dist/Components/ActionTextEditable'
-import ActionLink from 'nextcloud-vue/dist/Components/ActionLink'
 import Tooltip from 'nextcloud-vue/dist/Directives/Tooltip'
 
+// eslint-disable-next-line no-unused-vars
 import Share from '../models/Share'
 import SharesMixin from '../mixins/SharesMixin'
 
@@ -126,9 +126,7 @@ export default {
 		ActionButton,
 		ActionCheckbox,
 		ActionInput,
-		ActionText,
 		ActionTextEditable,
-		ActionLink,
 		Avatar
 	},
 
@@ -142,7 +140,7 @@ export default {
 		return {
 			permissionsEdit: OC.PERMISSION_UPDATE,
 			permissionsRead: OC.PERMISSION_READ,
-			permissionsShare: OC.PERMISSION_SHARE,
+			permissionsShare: OC.PERMISSION_SHARE
 		}
 	},
 
@@ -150,15 +148,15 @@ export default {
 		title() {
 			let title = this.share.shareWithDisplayName
 			if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_GROUP) {
-				title += ` (${ t('files_sharing', 'group') })`
+				title += ` (${t('files_sharing', 'group')})`
 			} else if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_ROOM) {
-				title += ` (${ t('files_sharing', 'conversation') })`
+				title += ` (${t('files_sharing', 'conversation')})`
 			} else if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_REMOTE) {
-				title += ` (${ t('files_sharing', 'remote') })`
+				title += ` (${t('files_sharing', 'remote')})`
 			} else if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_REMOTE_GROUP) {
-				title += ` (${ t('files_sharing', 'remote group') })`
+				title += ` (${t('files_sharing', 'remote group')})`
 			} else if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_GUEST) {
-				title += ` (${ t('files_sharing', 'guest') })`
+				title += ` (${t('files_sharing', 'guest')})`
 			}
 			return title
 		},
@@ -171,7 +169,7 @@ export default {
 					user: this.share.shareWithDisplayName,
 					owner: this.share.owner
 				}
-				
+
 				if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_GROUP) {
 					return t('files_sharing', 'Shared with the group {user} by {owner}', data)
 				} else if (this.share.type === this.SHARE_TYPES.SHARE_TYPE_ROOM) {
@@ -180,6 +178,7 @@ export default {
 
 				return t('files_sharing', 'Shared with {user} by {owner}', data)
 			}
+			return null
 		},
 
 		canHaveNote() {
@@ -209,21 +208,21 @@ export default {
 			set: function(checked) {
 				this.updatePermissions(this.canEdit, checked)
 			}
-		},
+		}
 
 	},
 
 	methods: {
 		updatePermissions(isEditChecked, isReshareChecked) {
 			// calc permissions if checked
-			const permissions = this.permissionsRead |
-				(isEditChecked ? this.permissionsEdit : 0) |
-				(isReshareChecked ? this.permissionsShare : 0)
+			const permissions = this.permissionsRead
+				| (isEditChecked ? this.permissionsEdit : 0)
+				| (isReshareChecked ? this.permissionsShare : 0)
 
 			this.share.permissions = permissions
 			this.queueUpdate('permissions')
 		}
-	},
+	}
 
 }
 </script>

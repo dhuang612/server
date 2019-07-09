@@ -28,7 +28,7 @@ export default class Sidebar {
 	constructor() {
 		// init empty state
 		this.#state = {}
-		
+
 		// init default values
 		this.#state.tabs = []
 		this.#state.views = []
@@ -48,9 +48,12 @@ export default class Sidebar {
 	}
 
 	/**
+	 * @memberof Sidebar
 	 * Register a new tab view
-	 * 
-	 * @param {Object} tab
+	 *
+	 * @param {Object} tab a new unregistered tab
+	 * @memberof Sidebar
+	 * @returns {Boolean}
 	 */
 	registerTab(tab) {
 		const hasDuplicate = this.#state.tabs.findIndex(check => check.name === tab.name) > -1
@@ -58,7 +61,7 @@ export default class Sidebar {
 			this.#state.tabs.push(tab)
 			return true
 		}
-		console.error(`An tab with the same name ${tab.name} already exists`, tab);
+		console.error(`An tab with the same name ${tab.name} already exists`, tab)
 		return false
 	}
 
@@ -68,22 +71,24 @@ export default class Sidebar {
 			this.#state.views.push(view)
 			return true
 		}
-		console.error(`A similar view already exists`, view);
+		console.error(`A similar view already exists`, view)
 		return false
 	}
-	
+
 	/**
 	 * Set the current sidebar file data
 	 *
+	 * @param {string} path the file path to load
 	 * @memberof Sidebar
 	 */
 	set file(path) {
 		this.#state.file = path
 	}
-	
+
 	/**
 	 * Set the current sidebar tab
 	 *
+	 * @param {string} id the tab unique id
 	 * @memberof Sidebar
 	 */
 	set activeTab(id) {

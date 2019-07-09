@@ -26,6 +26,8 @@ export default class Share {
 
 	/**
 	 * Create the share object
+	 *
+	 * @param {Object} ocsData ocs request response
 	 */
 	constructor(ocsData) {
 		if (ocsData.ocs && ocsData.ocs.data && ocsData.ocs.data[0]) {
@@ -57,7 +59,7 @@ export default class Share {
 
 	/**
 	 * get the share id
-	 * 
+	 *
 	 * @returns {int}
 	 * @readonly
 	 * @memberof Share
@@ -69,7 +71,7 @@ export default class Share {
 	/**
 	 * Get the share type
 	 *
-	 * @returns {}
+	 * @returns {int}
 	 * @readonly
 	 * @memberof Share
 	 */
@@ -80,7 +82,7 @@ export default class Share {
 	/**
 	 * Get the share permissions
 	 * See OC.PERMISSION_* variables
-	 * 
+	 *
 	 * @returns {int}
 	 * @readonly
 	 * @memberof Share
@@ -92,7 +94,8 @@ export default class Share {
 	/**
 	 * Set the share permissions
 	 * See OC.PERMISSION_* variables
-	 * 
+	 *
+	 * @param {int} permissions valid permission, See OC.PERMISSION_* variables
 	 * @memberof Share
 	 */
 	set permissions(permissions) {
@@ -197,7 +200,7 @@ export default class Share {
 
 	/**
 	 * Get the expiration date as a string format
-	 * 
+	 *
 	 * @returns {string}
 	 * @readonly
 	 * @memberof Share
@@ -220,7 +223,7 @@ export default class Share {
 	// EXTRA DATA ---------------------------------------------------
 	/**
 	 * Get the public share token
-	 * 
+	 *
 	 * @returns {string} the token
 	 * @readonly
 	 * @memberof Share
@@ -231,7 +234,7 @@ export default class Share {
 
 	/**
 	 * Get the share note if any
-	 * 
+	 *
 	 * @returns {string}
 	 * @readonly
 	 * @memberof Share
@@ -242,7 +245,7 @@ export default class Share {
 
 	/**
 	 * Set the share note if any
-	 * 
+	 *
 	 * @param {string} note the note
 	 * @memberof Share
 	 */
@@ -306,7 +309,7 @@ export default class Share {
 	// SHARED ITEM DATA ---------------------------------------------
 	/**
 	 * Get the shared item absolute full path
-	 * 
+	 *
 	 * @returns {string}
 	 * @readonly
 	 * @memberof Share
@@ -372,17 +375,16 @@ export default class Share {
 		return this.#share.file_parent
 	}
 
-
 	// PERMISSIONS Shortcuts
 	/**
 	 * Does this share have Create Permissions
-	 * 
+	 *
 	 * @returns {boolean}
 	 * @readonly
 	 * @memberof Share
 	 */
 	get hasCreatePermission() {
-		return (this.permissions & OC.PERMISSION_CREATE) ? true : false;
+		return !!((this.permissions & OC.PERMISSION_CREATE))
 	}
 
 	/**
@@ -393,7 +395,7 @@ export default class Share {
 	 * @memberof Share
 	 */
 	get hasUpdatePermission() {
-		return (this.permissions & OC.PERMISSION_UPDATE) ? true : false;
+		return !!((this.permissions & OC.PERMISSION_UPDATE))
 	}
 
 	/**
@@ -404,10 +406,8 @@ export default class Share {
 	 * @memberof Share
 	 */
 	get hasSharePermission() {
-		return (this.permissions & OC.PERMISSION_SHARE) ? true : false;
+		return !!((this.permissions & OC.PERMISSION_SHARE))
 	}
-
-
 
 	// TODO: SORT THOSE PROPERTIES
 	get label() {
@@ -418,7 +418,7 @@ export default class Share {
 		return this.#share.parent
 	}
 
-	get storage_id() {
+	get storageId() {
 		return this.#share.storage_id
 	}
 
@@ -426,9 +426,8 @@ export default class Share {
 		return this.#share.storage
 	}
 
-	get item_source() {
+	get itemSource() {
 		return this.#share.item_source
 	}
-
 
 }

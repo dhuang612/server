@@ -5,24 +5,28 @@
 		:title="t('files_sharing', 'Internal link')"
 		:subtitle="internalLinkSubtitle">
 		<template #avatar>
-			<div class="avatar-external icon-external-white"></div>
+			<div class="avatar-external icon-external-white" />
 		</template>
-		
-		<ActionLink ref="copyButton" :href="internalLink" target="_blank"
+
+		<ActionLink ref="copyButton"
+			:href="internalLink"
+			target="_blank"
 			:icon="copied && copySuccess ? 'icon-checkmark-color' : 'icon-clippy'"
-			@click.prevent="copyLink">{{ clipboardTooltip }}</ActionLink>
+			@click.prevent="copyLink">
+			{{ clipboardTooltip }}
+		</ActionLink>
 	</SharingEntrySimple>
 </template>
 
 <script>
-import { generateUrl } from 'nextcloud-router/dist/index'
+import { generateUrl } from '@nextcloud/router'
 import ActionLink from 'nextcloud-vue/dist/Components/ActionLink'
 import SharingEntrySimple from './SharingEntrySimple'
 
 export default {
 	name: 'SharingEntryInternal',
 
-	components: { 
+	components: {
 		ActionLink,
 		SharingEntrySimple
 	},
@@ -32,7 +36,7 @@ export default {
 			type: Object,
 			default: () => {},
 			required: true
-		},
+		}
 	},
 
 	data() {
@@ -50,9 +54,9 @@ export default {
 		internalLink() {
 			return window.location.protocol + '//' + window.location.host + generateUrl('/f/') + this.fileInfo.id
 		},
-		
+
 		/**
-		 * Clipboard v-tooltip message 
+		 * Clipboard v-tooltip message
 		 * @returns {string}
 		 */
 		clipboardTooltip() {
@@ -72,7 +76,7 @@ export default {
 		}
 	},
 
-	methods: {		
+	methods: {
 		async copyLink() {
 			try {
 				await this.$copyText(this.internalLink)
@@ -83,7 +87,7 @@ export default {
 			} catch (error) {
 				this.copySuccess = false
 				this.copied = true
-				console.error(error);
+				console.error(error)
 			} finally {
 				setTimeout(() => {
 					this.copySuccess = false

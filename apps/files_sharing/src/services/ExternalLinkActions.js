@@ -27,7 +27,7 @@ export default class ExternalLinkActions {
 	constructor() {
 		// init empty state
 		this.#state = {}
-		
+
 		// init default values
 		this.#state.actions = []
 		console.debug('OCA.Sharing.ExternalLinkActions initialized')
@@ -47,15 +47,17 @@ export default class ExternalLinkActions {
 	/**
 	 * Register a new action for the link share
 	 * Mostly used by the social sharing app.
-	 * 
-	 * @param {Object} action
+	 *
+	 * @param {Object} action new action component to register
+	 * @returns {boolean}
 	 */
 	registerAction(action) {
 		if (typeof action === 'object' && action.render && action.components) {
 			this.#state.actions.push(action)
 			return true
 		}
-		console.error(`Invalid action component provided`, action);
+		console.error(`Invalid action component provided`, action)
 		return false
 	}
+
 }
