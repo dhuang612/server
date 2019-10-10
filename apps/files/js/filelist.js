@@ -484,7 +484,7 @@
 					iconClass: 'icon-details',
 					permissions: OC.PERMISSION_NONE,
 					actionHandler: (fileName, context) => {
-						self._updateDetailsView(fileName);
+						this._updateDetailsView(fileName);
 					}
 				});
 			}
@@ -562,7 +562,7 @@
 		 * @param {string} [tabId] optional tab id to select
 		 */
 		showDetailsView: function(fileName, tabId) {
-			console.warn('showDetailsView is deprecated! Use OCA.Files.Sidebar. It will be removed in nextcloud 20.');
+			console.warn('showDetailsView is deprecated! Use OCA.Files.Sidebar.activeTab. It will be removed in nextcloud 20.');
 			this._updateDetailsView(fileName);
 			if (tabId) {
 				OCA.Files.Sidebar.activeTab = tabId;
@@ -576,7 +576,7 @@
 		 * @param {boolean} [show=true] whether to open the sidebar if it was closed
 		 */
 		_updateDetailsView: function(fileName) {
-			if (!(OCA.Files && CA.Files.Sidebar)) {
+			if (!(OCA.Files && OCA.Files.Sidebar)) {
 				console.error('No sidebar available');
 				return;
 			}
@@ -588,9 +588,14 @@
 				fileName = ''
 			}
 
+			// this is the old (terrible) way of getting the context.
+			// don't use it anywhere else. Just provide the full path
+			// of the file to the sidebar service
+			let $tr = this.findFileEl(fileName)
+			let model = this.getModelForFile($tr)
+			const path = `${model.attributes.path}/${model.attributes.name}`
+
 			// open sidebar and set file
-			const dir = `${this.dirInfo.path}/${this.dirInfo.name}`
-			const path = `${dir}/${fileName}`
 			OCA.Files.Sidebar.file = path.replace('//', '/')
 		},
 
