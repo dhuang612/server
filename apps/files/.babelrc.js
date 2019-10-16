@@ -4,5 +4,8 @@ module.exports = {
 			'@babel/plugin-proposal-class-properties',
 			{ loose: true }
 		]
+	],
+	presets: [
+		"@babel/preset-env"
 	]
 }
