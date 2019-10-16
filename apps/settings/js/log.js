@@ -13,7 +13,7 @@ OC.Log = {
 			count = OC.Log.loaded;
 		}
 		OC.Log.loaded = 0;
-		$('#log tbody').empty();
+		const log = document.getElementById('log tbody').value = '';
 		OC.Log.getMore(count);
 	},
 	levels: ['Debug', 'Info', 'Warning', 'Error', 'Fatal'],
