@@ -483,8 +483,8 @@
 					order: -50,
 					iconClass: 'icon-details',
 					permissions: OC.PERMISSION_NONE,
-					actionHandler: (fileName, context) => {
-						this._updateDetailsView(fileName);
+					actionHandler: function(fileName, context) {
+						self._updateDetailsView(fileName);
 					}
 				});
 			}
@@ -591,9 +591,9 @@
 			// this is the old (terrible) way of getting the context.
 			// don't use it anywhere else. Just provide the full path
 			// of the file to the sidebar service
-			let $tr = this.findFileEl(fileName)
-			let model = this.getModelForFile($tr)
-			const path = `${model.attributes.path}/${model.attributes.name}`
+			var tr = this.findFileEl(fileName)
+			var model = this.getModelForFile(tr)
+			var path = model.attributes.path + '/' + model.attributes.name
 
 			// open sidebar and set file
 			OCA.Files.Sidebar.file = path.replace('//', '/')

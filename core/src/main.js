@@ -1,4 +1,4 @@
-/*
+/**
  * @copyright 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
  *
  * @author 2018 Christoph Wurst <christoph@winzerhof-wurst.at>
@@ -20,7 +20,6 @@
  */
 
 import $ from 'jquery'
-import '@babel/polyfill'
 import './Polyfill/index'
 
 // If you remove the line below, tests won't pass

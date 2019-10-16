@@ -98,7 +98,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	public static function fileNameInDetailsView() {
-		return Locator::forThe()->css(".fileName")->
+		return Locator::forThe()->css(".app-sidebar-header__title")->
 				descendantOf(self::detailsView())->
 				describedAs("File name in details view in Files app");
 	}
@@ -107,7 +107,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	public static function favoriteActionInFileDetailsInDetailsView() {
-		return Locator::forThe()->css(".action-favorite")->
+		return Locator::forThe()->css(".app-sidebar-header__star")->
 				descendantOf(self::fileDetailsInDetailsView())->
 				describedAs("Favorite action in file details in details view in Files app");
 	}
@@ -143,7 +143,7 @@ class FilesAppContext implements Context, ActorAwareInterface {
 	 * @return Locator
 	 */
 	private static function fileDetailsInDetailsView() {
-		return Locator::forThe()->css(".file-details")->
+		return Locator::forThe()->css(".app-sidebar-header__desc")->
 				descendantOf(self::detailsView())->
 				describedAs("File details in details view in Files app");
 	}

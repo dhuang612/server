@@ -84,7 +84,7 @@ module.exports = function(config) {
 			{
 				name: 'settings',
 				srcFiles: [
-					'settings/js/apps.js'
+					'apps/settings/js/apps.js'
 				]
 			}
 		];
